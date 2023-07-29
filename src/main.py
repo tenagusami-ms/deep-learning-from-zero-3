@@ -7,6 +7,7 @@ import asyncio
 from pathlib import Path
 
 from src.modules.lower_layer_modules.Exceptions import Error
+from src.modules.steps.step03 import step03
 
 
 async def main() -> None:
@@ -16,7 +17,9 @@ async def main() -> None:
     prefix_directory: Path = Path(__file__).parent.parent
     data_directory: Path = prefix_directory / "data"
     try:
-        pass
+        # step01()
+        # step02()
+        step03()
 
     except KeyboardInterrupt:
         exit(1)
