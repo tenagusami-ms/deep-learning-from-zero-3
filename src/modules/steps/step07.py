@@ -1,5 +1,5 @@
 """
-step 06
+step 07
 """
 from __future__ import annotations
 
@@ -12,6 +12,23 @@ class Variable:
     def __init__(self, data: np.ndarray):
         self.data: np.ndarray = data
         self.grad: Optional[np.ndarray] = None
+        self.creator: Optional[Function] = None
+
+    def set_creator(self, func: Function) -> None:
+        """
+        set_creator
+        """
+        self.creator = func
+
+    def backward(self) -> None:
+        """
+        backward
+        """
+        func: Optional[Function] = self.creator
+        if func is not None:
+            x: Variable = func.input
+            x.grad = func.backward(self.grad)
+            x.backward()
 
 
 class Function:
@@ -26,7 +43,9 @@ class Function:
         x: np.ndarray = input_variable.data
         y: np.ndarray = self.forward(x)
         output: Variable = Variable(y)
-        self.input = input_variable
+        output.set_creator(self)
+        self.input: Variable = input_variable
+        self.output: Variable = output
         return output
 
     def forward(self, x: np.ndarray) -> np.ndarray:
@@ -82,9 +101,9 @@ class Exp(Function):
         return gx
 
 
-def step06() -> None:
+def step07() -> None:
     """
-    step 06
+    step 07
     """
     a_func: Function = Square()
     b_func: Function = Exp()
@@ -96,8 +115,5 @@ def step06() -> None:
     y: Variable = c_func(b)
 
     y.grad = np.array(1.0)
-    b.grad = c_func.backward(y.grad)
-    a.grad = b_func.backward(b.grad)
-    x.grad = a_func.backward(a.grad)
-
+    y.backward()
     print(x.grad)
