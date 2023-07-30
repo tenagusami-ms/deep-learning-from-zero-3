@@ -3,7 +3,7 @@ step 09
 """
 from __future__ import annotations
 
-from typing import Optional, MutableSequence
+from typing import Optional, MutableSequence, Sequence
 
 import numpy as np
 
@@ -45,25 +45,26 @@ class Function:
     Function
     """
 
-    def __call__(self, input_variable: Variable) -> Variable:
+    def __call__(self, inputs: Sequence[Variable]) -> Sequence[Variable]:
         """
         __call__
         """
-        x: np.ndarray = input_variable.data
-        y: np.ndarray = self.forward(x)
-        output: Variable = Variable(as_array(y))
-        output.set_creator(self)
-        self.input: Variable = input_variable
-        self.output: Variable = output
-        return output
+        xs: Sequence[np.ndarray] = [x.data for x in inputs]
+        ys: Sequence[np.ndarray] = self.forward(xs)
+        outputs: Sequence[Variable] = [Variable(as_array(y)) for y in ys]
+        for output in outputs:
+            output.set_creator(self)
+        self.inputs: Sequence[Variable] = inputs
+        self.outputs: Sequence[Variable] = outputs
+        return outputs
 
-    def forward(self, x: np.ndarray) -> np.ndarray:
+    def forward(self, xs: Sequence[np.ndarray]) -> Sequence[np.ndarray]:
         """
         forward
         """
         raise NotImplementedError()
 
-    def backward(self, gy: np.ndarray) -> np.ndarray:
+    def backward(self, gys: Sequence[np.ndarray]) -> Sequence[np.ndarray]:
         """
         backward
         """
