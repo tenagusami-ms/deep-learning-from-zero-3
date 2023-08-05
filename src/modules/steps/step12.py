@@ -1,5 +1,5 @@
 """
-step 11
+step 12
 """
 from __future__ import annotations
 
@@ -29,20 +29,22 @@ class Function:
     Function
     """
 
-    def __call__(self, inputs: Sequence[Variable]) -> Sequence[Variable]:
+    def __call__(self, *inputs: Variable) -> Sequence[Variable] | Variable:
         """
         __call__
         """
         xs: Sequence[np.ndarray] = [x.data for x in inputs]
-        ys: Sequence[np.ndarray] = self.forward(xs)
+        ys: tuple[np.ndarray] | np.ndarray = self.forward(*xs)
+        if not isinstance(ys, tuple):
+            ys: tuple[np.ndarray] = (ys,)
         outputs: Sequence[Variable] = [Variable(as_array(y)) for y in ys]
         for output in outputs:
             output.set_creator(self)
         self.inputs: Sequence[Variable] = inputs
         self.outputs: Sequence[Variable] = outputs
-        return outputs
+        return outputs if len(outputs) > 1 else outputs[0]
 
-    def forward(self, xs: Sequence[np.ndarray]) -> Sequence[np.ndarray]:
+    def forward(self, *xs: np.ndarray) -> tuple[np.ndarray] | np.ndarray:
         """
         forward
         """
@@ -54,24 +56,20 @@ class Add(Function):
     Add
     """
 
-    def forward(self, xs: Sequence[np.ndarray]) -> Sequence[np.ndarray]:
+    def forward(self, x0: np.ndarray, x1: np.ndarray) -> tuple[np.ndarray] | np.ndarray:
         """
         forward
         """
-        x0: np.ndarray = xs[0]
-        x1: np.ndarray = xs[1]
-        y: np.ndarray = x0 + x1
-        return (y,)
+        return x0 + x1
 
 
-def step11() -> None:
+def step12() -> None:
     """
-    step 11
+    step 12
     """
-    xs: Sequence[Variable] = [Variable(np.array(2)), Variable(np.array(3))]
-    f: Function = Add()
-    ys: Sequence[Variable] = f(xs)
-    print(ys[0].data)
+    x0, x1 = [Variable(np.array(2)), Variable(np.array(3))]
+    y: Sequence[Variable] | Variable = add(x0, x1)
+    print(y.data)
 
 
 def as_array(x: np.ndarray) -> np.ndarray:
@@ -81,3 +79,10 @@ def as_array(x: np.ndarray) -> np.ndarray:
     if np.isscalar(x):
         return np.array(x)
     return x
+
+
+def add(x0: Variable, x1: Variable) -> Variable:
+    """
+    add
+    """
+    return Add()(x0, x1)
