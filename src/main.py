@@ -6,7 +6,7 @@ from __future__ import annotations
 import asyncio
 
 from src.modules.lower_layer_modules.Exceptions import Error
-from src.modules.steps.step27 import step27
+from src.modules.steps.step28 import step28
 
 
 async def main() -> None:
@@ -38,7 +38,8 @@ async def main() -> None:
         # step23()
         # step24()
         # step25_26()
-        step27()
+        # step27()
+        step28()
 
     except KeyboardInterrupt:
         exit(1)
