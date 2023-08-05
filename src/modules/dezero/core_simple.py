@@ -1,5 +1,5 @@
 """
-step 22
+step 21
 """
 from __future__ import annotations
 
@@ -362,39 +362,6 @@ class Pow(Function):
         return c * x ** (c - 1) * gy
 
 
-class Square(Function):
-    """
-    Square
-    """
-
-    def forward(self, x: np.ndarray) -> np.ndarray:
-        """
-        forward
-        """
-        return x ** 2
-
-    def backward(self, gy: np.ndarray) -> np.ndarray:
-        """
-        backward
-        """
-        x: np.ndarray = self.inputs[0].data
-        gx: np.ndarray = 2 * x * gy
-        return gx
-
-
-def step22() -> None:
-    """
-    step 22
-    """
-    x: Variable = Variable(np.array(2.0))
-    y1: Variable = 2.0 - x
-    y2: Variable = x - 1.0
-    y3: Variable = x ** 3
-    print(y1)
-    print(y2)
-    print(y3)
-
-
 def as_array(x: np.ndarray | numbers.Real) -> np.ndarray:
     """
     as_array
@@ -402,13 +369,6 @@ def as_array(x: np.ndarray | numbers.Real) -> np.ndarray:
     if np.isscalar(x):
         return np.array(x)
     return x
-
-
-def square(x: Variable) -> Variable:
-    """
-    square
-    """
-    return Square()(x)
 
 
 @contextlib.contextmanager
