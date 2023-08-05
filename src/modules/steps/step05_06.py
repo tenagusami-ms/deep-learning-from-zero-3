@@ -1,5 +1,5 @@
 """
-step 06
+step 05 & 06
 """
 from __future__ import annotations
 
@@ -82,9 +82,9 @@ class Exp(Function):
         return gx
 
 
-def step06() -> None:
+def step05_06() -> None:
     """
-    step 06
+    step 05 & 06
     """
     a_func: Function = Square()
     b_func: Function = Exp()
