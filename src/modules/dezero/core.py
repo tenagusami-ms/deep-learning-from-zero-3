@@ -1,5 +1,5 @@
 """
-core
+core_simple
 """
 from __future__ import annotations
 
@@ -83,7 +83,7 @@ class Variable:
         backward
         """
         if self.grad is None:
-            self.grad: Variable = Variable(np.ones_like(self.data))
+            self.grad = Variable(np.ones_like(self.data))
 
         funcs: list[Function] = list()
         seen_set: MutableSet[Function] = set()
@@ -97,9 +97,9 @@ class Variable:
         add_func(self.creator)
         while funcs:
             func: Optional[Function] = funcs.pop()
-            gys: Sequence[Optional[Variable]] = [output().grad for output in func.outputs]
+            gys: Sequence[Optional[np.ndarray]] = [output().grad for output in func.outputs]
             with using_config("enable_backprop", create_graph):
-                gxs: tuple[Variable] | Variable = func.backward(*gys)
+                gxs: tuple[Variable, ...] | Variable = func.backward(*gys)
                 if not isinstance(gxs, tuple):
                     gxs: tuple[Variable, ...] = (gxs,)
                 for x, gx in zip(func.inputs, gxs):
@@ -222,9 +222,9 @@ class Function:
         """
         inputs: Sequence[Variable] = [as_variable(x) for x in inputs]
         xs: Sequence[np.ndarray] = [x.data for x in inputs]
-        ys: tuple[Variable, ...] | Variable = self.forward(*xs)
+        ys: tuple[np.ndarray, ...] | np.ndarray = self.forward(*xs)
         if not isinstance(ys, tuple):
-            ys: tuple[Variable, ...] = (ys,)
+            ys: tuple[np.ndarray, ...] = (ys,)
         outputs: Sequence[Variable] = [Variable(as_array(y)) for y in ys]
 
         if Config.enable_backprop:
@@ -235,7 +235,7 @@ class Function:
             self.outputs: Sequence[ReferenceType[Variable]] = [weakref.ref(output) for output in outputs]
         return outputs if len(outputs) > 1 else outputs[0]
 
-    def forward(self, *xs: np.ndarray) -> tuple[Variable, ...] | Variable:
+    def forward(self, *xs: np.ndarray) -> tuple[np.ndarray, ...] | np.ndarray:
         """
         forward
         """
@@ -253,11 +253,11 @@ class Add(Function):
     Add
     """
 
-    def forward(self, x0: np.ndarray, x1: np.ndarray) -> tuple[Variable, ...] | Variable:
+    def forward(self, x0: np.ndarray, x1: np.ndarray) -> tuple[np.ndarray, ...] | np.ndarray:
         """
         forward
         """
-        return as_variable(x0 + x1)
+        return x0 + x1
 
     def backward(self, gy: Variable) -> tuple[Variable, ...] | Variable:
         """
@@ -271,11 +271,11 @@ class Neg(Function):
     negate
     """
 
-    def forward(self, x: np.ndarray) -> tuple[Variable, ...] | Variable:
+    def forward(self, x: np.ndarray) -> tuple[np.ndarray, ...] | np.ndarray:
         """
         forward
         """
-        return as_variable(-x)
+        return -x
 
     def backward(self, gy: Variable) -> tuple[Variable, ...] | Variable:
         """
@@ -289,11 +289,11 @@ class Sub(Function):
     Sub
     """
 
-    def forward(self, x0: np.ndarray, x1: np.ndarray) -> tuple[Variable, ...] | Variable:
+    def forward(self, x0: np.ndarray, x1: np.ndarray) -> tuple[np.ndarray, ...] | np.ndarray:
         """
         forward
         """
-        return as_variable(x0 - x1)
+        return x0 - x1
 
     def backward(self, gy: Variable) -> tuple[Variable, ...] | Variable:
         """
@@ -307,11 +307,11 @@ class Mul(Function):
     Mul
     """
 
-    def forward(self, x0: np.ndarray, x1: np.ndarray) -> tuple[Variable, ...] | Variable:
+    def forward(self, x0: np.ndarray, x1: np.ndarray) -> tuple[np.ndarray, ...] | np.ndarray:
         """
         forward
         """
-        return as_variable(x0 * x1)
+        return x0 * x1
 
     def backward(self, gy: Variable) -> tuple[Variable, ...] | Variable:
         """
@@ -326,11 +326,11 @@ class Div(Function):
     Div
     """
 
-    def forward(self, x0: np.ndarray, x1: np.ndarray) -> tuple[Variable, ...] | Variable:
+    def forward(self, x0: np.ndarray, x1: np.ndarray) -> tuple[np.ndarray, ...] | np.ndarray:
         """
         forward
         """
-        return as_variable(x0 / x1)
+        return x0 / x1
 
     def backward(self, gy: Variable) -> tuple[Variable, ...] | Variable:
         """
@@ -348,11 +348,11 @@ class Pow(Function):
     def __init__(self, c: numbers.Real) -> None:
         self.c: numbers.Real = c
 
-    def forward(self, x: np.ndarray) -> tuple[Variable, ...] | Variable:
+    def forward(self, x: np.ndarray) -> tuple[np.ndarray, ...] | np.ndarray:
         """
         forward
         """
-        return as_variable(x ** self.c)
+        return x ** self.c
 
     def backward(self, gy: Variable) -> tuple[Variable, ...] | Variable:
         """

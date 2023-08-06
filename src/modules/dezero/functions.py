@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from src.modules.dezero.core import Function, Variable, as_variable, as_array
+from src.modules.dezero.core import Function, Variable, as_array
 
 
 class Sin(Function):
@@ -17,14 +17,14 @@ class Sin(Function):
         """
         forward
         """
-        return as_variable(as_array(np.sin(x)))
+        return np.sin(x)
 
     def backward(self, gy: Variable) -> Variable:
         """
         backward
         """
         x, = self.inputs
-        return gy * np.cos(x)
+        return gy * np.cos(as_array(x.data))
 
 
 def sine(x: Variable) -> Variable:
@@ -43,7 +43,7 @@ class Cos(Function):
         """
         forward
         """
-        return as_variable(as_array(np.cos(x)))
+        return np.cos(x)
 
     def backward(self, gy: Variable) -> Variable:
         """
